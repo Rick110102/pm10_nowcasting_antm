@@ -1,1 +1,33 @@
+name: Actualizar Monitor Nowcasting PM10
 
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [trigger-update]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Instalar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Instalar dependencias
+        run: pip install requests folium
+
+      - name: Ejecutar script
+        env:
+          METEOSIM_SECRET: ${{ secrets.METEOSIM_SECRET }}
+        run: python scripts/generate_map.py
+
+      - name: Publicar en GitHub Pages
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add index.html
+          git commit -m "Update nowcasting $(date -u '+%Y-%m-%d %H:%M UTC')" || echo "Sin cambios"
+          git push
