@@ -16,11 +16,12 @@ SITE_ID       = "antamina_predictions"
 TOPIC         = "nowcasting"
 PERU_TZ       = timezone(timedelta(hours=-5))
 
+# Orden definido por usuario
 ESTACIONES = [
+    {"nombre": "Usupallares", "location_code": "USUPALLARES","lat": -9.55422, "lng": -77.07305, "buffer_m": 2000},
     {"nombre": "Dos Cruces",  "location_code": "2CRUCES",    "lat": -9.56023, "lng": -77.05986, "buffer_m": 2000},
     {"nombre": "Quebrada",    "location_code": "QUEBRADA",   "lat": -9.55501, "lng": -77.08584, "buffer_m": 1000},
     {"nombre": "Tucush",      "location_code": "TUCUSH",     "lat": -9.51011, "lng": -77.05715, "buffer_m": 2000},
-    {"nombre": "Usupallares", "location_code": "USUPALLARES","lat": -9.55422, "lng": -77.07305, "buffer_m": 2000},
 ]
 
 # ══════════════════════════════════════════════════════════
@@ -64,9 +65,7 @@ def get_timeserie(token, record_code):
     return r.json()["items"]
 
 # ══════════════════════════════════════════════════════════
-# PROCESAR — todos los datos son pronóstico
-# ventana pronóstico: primer dato → +1h 55min
-# ventana observados: primer dato -2h → primer dato (vacío por ahora)
+# PROCESAR
 # ══════════════════════════════════════════════════════════
 def procesar(items):
     pronostico = []
@@ -86,10 +85,7 @@ def procesar(items):
     inicio = pronostico[0]["time"]
     fin    = inicio + timedelta(hours=1, minutes=55)
     pronostico = [r for r in pronostico if r["time"] <= fin]
-
-    # Observados: ventana 2h antes del inicio — vacía por ahora
     observados = []
-
     return observados, pronostico
 
 # ══════════════════════════════════════════════════════════
@@ -102,7 +98,7 @@ def get_color(val):
     return             "#22c55e",  "BAJO",     "🟢"
 
 # ══════════════════════════════════════════════════════════
-# MAPA FOLIUM
+# MAPA FOLIUM — con labels sutiles por estación
 # ══════════════════════════════════════════════════════════
 def generar_mapa(resultados):
     lat_c = sum(e["lat"] for e in ESTACIONES) / len(ESTACIONES)
@@ -119,6 +115,7 @@ def generar_mapa(resultados):
         color, categoria, emoji = get_color(est["max_val"])
         km = est["buffer_m"] / 1000
 
+        # Buffer
         folium.Circle(
             location=[est["lat"], est["lng"]],
             radius=est["buffer_m"],
@@ -127,6 +124,7 @@ def generar_mapa(resultados):
             tooltip=f"{est['nombre']} · {est['max_val']:.2f} μg/m³ · {emoji} {categoria}"
         ).add_to(m)
 
+        # Punto central
         folium.CircleMarker(
             location=[est["lat"], est["lng"]],
             radius=6,
@@ -144,19 +142,36 @@ def generar_mapa(resultados):
             tooltip=f"{est['nombre']} · {est['max_val']:.2f} μg/m³"
         ).add_to(m)
 
+        # Label sutil sobre el buffer
+        folium.Marker(
+            location=[est["lat"], est["lng"]],
+            icon=folium.DivIcon(
+                html=f"""<div style="
+                    font-family:'Share Tech Mono',monospace;
+                    font-size:10px;
+                    color:#ffffff;
+                    background:rgba(0,0,0,0.45);
+                    border:1px solid rgba(255,255,255,0.25);
+                    border-radius:3px;
+                    padding:1px 6px;
+                    white-space:nowrap;
+                    pointer-events:none;
+                    transform:translate(-50%, -220%);
+                ">{est['nombre']}</div>""",
+                icon_size=(1, 1),
+                icon_anchor=(0, 0)
+            )
+        ).add_to(m)
+
     return m.get_root().render()
 
 # ══════════════════════════════════════════════════════════
 # CHART DATA
-# eje_x: ventana completa de 4h (2h antes + 1h55 después)
-# cada tick = 5 minutos
 # ══════════════════════════════════════════════════════════
 def preparar_chart_data(resultados):
     charts = []
     for est in resultados:
         color, _, _ = get_color(est["max_val"])
-
-        # Construir eje X completo: 2h antes del inicio hasta +1h55
         pron = est["pronostico"]
         obs  = est["observados"]
 
@@ -164,7 +179,6 @@ def preparar_chart_data(resultados):
             inicio    = pron[0]["time"]
             ventana_i = inicio - timedelta(hours=2)
             ventana_f = inicio + timedelta(hours=1, minutes=55)
-            # generar ticks de 5 min para toda la ventana
             eje_x = []
             t = ventana_i
             while t <= ventana_f:
@@ -175,8 +189,7 @@ def preparar_chart_data(resultados):
 
         obs_data  = [{"x": r["time"].strftime("%H:%M"), "y": r["value"]} for r in obs]
         pron_data = [{"x": r["time"].strftime("%H:%M"), "y": r["value"]} for r in pron]
-
-        max_item = max(pron, key=lambda x: x["value"]) if pron else None
+        max_item  = max(pron, key=lambda x: x["value"]) if pron else None
 
         charts.append({
             "nombre":      est["nombre"],
@@ -191,7 +204,7 @@ def preparar_chart_data(resultados):
     return json.dumps(charts, ensure_ascii=False)
 
 # ══════════════════════════════════════════════════════════
-# HTML FINAL — estilos del PM10 original, refresh 5 min
+# HTML FINAL
 # ══════════════════════════════════════════════════════════
 def generar_html(resultados, mapa_render, ahora):
     chart_data = preparar_chart_data(resultados)
@@ -209,52 +222,132 @@ def generar_html(resultados, mapa_render, ahora):
   <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@300;400;600&display=swap" rel="stylesheet"/>
   <style>
-    :root {{--bg:#0a0e14;--panel:#111820;--border:#1e2d3d;--accent:#00c8ff;--text:#c9d8e8;--muted:#4a6070;--legend:#0d1520;}}
-    *{{margin:0;padding:0;box-sizing:border-box;}}
-    html,body{{height:100%;background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;overflow:hidden;}}
-    header{{height:48px;flex-shrink:0;background:var(--panel);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;gap:16px;}}
-    .logo{{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--accent);letter-spacing:2px;}}
-    .hdr-right{{margin-left:auto;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);display:flex;gap:20px;}}
-    .hdr-right span{{color:var(--accent);}}
-    .body{{display:grid;grid-template-columns:40% 60%;grid-template-rows:calc(100vh - 84px) 36px;height:calc(100vh - 48px);}}
-    .charts-panel{{grid-column:1;grid-row:1;display:flex;flex-direction:column;overflow:hidden;border-right:1px solid var(--border);background:var(--bg);}}
-    .charts-scroll{{flex:1;overflow-y:auto;padding:8px 10px;display:flex;flex-direction:column;gap:6px;}}
-    .chart-block{{flex-shrink:0;}}
-    .chart-label{{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--accent);letter-spacing:1px;margin-bottom:2px;padding-left:2px;}}
-    .plotly-div{{width:100%;height:140px;}}
-    .map-panel{{grid-column:2;grid-row:1;overflow:hidden;position:relative;}}
-    .map-panel .folium-map{{width:100% !important;height:100% !important;}}
-    .legend-charts{{grid-column:1;grid-row:2;background:var(--legend);border-top:1px solid var(--border);border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;padding:0 10px;gap:16px;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);}}
-    .li{{display:flex;align-items:center;gap:5px;}}
-    .line-solid{{width:20px;height:2px;background:#94a3b8;}}
-    .line-pron{{width:20px;height:2px;background:#00c8ff;}}
-    .line-corte{{width:2px;height:12px;background:#5E3A07;}}
-    .dot-max{{width:8px;height:8px;border-radius:50%;background:#ef4444;}}
-    .legend-map{{grid-column:2;grid-row:2;background:var(--legend);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:center;padding:0 14px;gap:16px;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);}}
-    .dot{{width:10px;height:10px;border-radius:50%;flex-shrink:0;}}
-    ::-webkit-scrollbar{{width:3px;}}
-    ::-webkit-scrollbar-thumb{{background:#5E3A07;border-radius:2px;}}
-    *{{scrollbar-width:thin;scrollbar-color:#5E3A07 var(--bg);}}
+    :root {{
+      --bg:     #E3E3E3;
+      --panel:  #F5F5F5;
+      --border: #1e2d3d;
+      --accent: #000000;
+      --text:   #c9d8e8;
+      --muted:  #4a6070;
+      --legend: #F5F5F5;
+    }}
+    * {{ margin:0; padding:0; box-sizing:border-box; }}
+    html, body {{
+      height:100%; background:var(--bg);
+      color:var(--text); font-family:'Barlow',sans-serif;
+      overflow:hidden;
+    }}
+    header {{
+      height:48px; flex-shrink:0;
+      background:var(--panel);
+      border-bottom:1px solid var(--border);
+      padding:0 20px;
+      display:flex; align-items:center; gap:16px;
+    }}
+    .logo {{
+      font-family:'Share Tech Mono',monospace;
+      font-size:20px; color:var(--accent); letter-spacing:2px;
+    }}
+    .hdr-right {{
+      margin-left:auto;
+      font-family:'Share Tech Mono',monospace;
+      font-size:11px; color:var(--muted);
+      display:flex; gap:20px;
+    }}
+    .hdr-right span {{ color:var(--accent); }}
+    .body {{
+      display:grid;
+      grid-template-columns: 40% 60%;
+      grid-template-rows: calc(100vh - 84px) 36px;
+      height:calc(100vh - 48px);
+    }}
+    .charts-panel {{
+      grid-column:1; grid-row:1;
+      display:flex; flex-direction:column;
+      overflow:hidden;
+      border-right:1px solid var(--border);
+      background:var(--bg);
+    }}
+    .charts-scroll {{
+      flex:1; overflow-y:auto;
+      padding:8px 10px;
+      display:flex; flex-direction:column; gap:6px;
+    }}
+    .chart-block {{ flex-shrink:0; }}
+    .chart-label {{
+      font-family:'Share Tech Mono',monospace;
+      font-size:12px; color:var(--accent);
+      letter-spacing:1px; margin-bottom:2px;
+      padding-left:2px;
+    }}
+    .plotly-div {{ width:100%; height:180px; }}
+    .map-panel {{
+      grid-column:2; grid-row:1;
+      overflow:hidden; position:relative;
+    }}
+    .map-panel .folium-map {{
+      width:100% !important;
+      height:100% !important;
+    }}
+    .legend-charts {{
+      grid-column:1; grid-row:2;
+      background:var(--legend);
+      border-top:1px solid var(--border);
+      border-right:1px solid var(--border);
+      display:flex; align-items:center;
+      justify-content:center;
+      padding:0 10px; gap:16px;
+      font-family:'Share Tech Mono',monospace;
+      font-size:9px; color:var(--muted);
+    }}
+    .li {{ display:flex; align-items:center; gap:5px; }}
+    .line-solid {{ width:20px; height:2px; background:#283552; }}
+    .line-pron  {{ width:20px; height:2px; background:#0070A3; }}
+    .line-corte {{ width:2px; height:12px; background:#E88D00; }}
+    .dot-max    {{ width:8px; height:8px; border-radius:50%; background:#850B0B; }}
+    .legend-map {{
+      grid-column:2; grid-row:2;
+      background:var(--legend);
+      border-top:1px solid var(--border);
+      display:flex; align-items:center;
+      justify-content:center;
+      padding:0 14px; gap:16px;
+      font-family:'Share Tech Mono',monospace;
+      font-size:9px; color:var(--muted);
+    }}
+    .dot {{ width:10px; height:10px; border-radius:50%; flex-shrink:0; }}
+    ::-webkit-scrollbar {{ width:3px; }}
+    ::-webkit-scrollbar-thumb {{ background:var(--border); border-radius:2px; }}
   </style>
 </head>
 <body>
+
 <header>
-  <div class="logo">⬡ ANTAMINA · MONITOR NOWCASTING PM10 · 4 ESTACIONES</div>
+  <div class="logo">ANTAMINA - MONITOR NOWCASTING PM10</div>
   <div class="hdr-right">
     <div>Corte: <span>{hora_corte}</span></div>
     <div>Actualizado: <span>{fecha_act}</span> (Perú)</div>
     <div>Próx. <span>{hora_prox}</span></div>
   </div>
 </header>
+
 <div class="body">
-  <div class="charts-panel"><div class="charts-scroll" id="charts-scroll"></div></div>
-  <div class="map-panel" id="map-panel">{mapa_render}</div>
+
+  <div class="charts-panel">
+    <div class="charts-scroll" id="charts-scroll"></div>
+  </div>
+
+  <div class="map-panel" id="map-panel">
+    {mapa_render}
+  </div>
+
   <div class="legend-charts">
     <div class="li"><div class="line-solid"></div><span>Observado</span></div>
     <div class="li"><div class="line-pron"></div><span>Pronóstico</span></div>
     <div class="li"><div class="line-corte"></div><span>Inicio pronóstico</span></div>
     <div class="li"><div class="dot-max"></div><span>Máx. pronóstico</span></div>
   </div>
+
   <div class="legend-map">
     <div class="li"><div class="dot" style="background:#22c55e"></div><span>&lt; 20 μg/m³ Bajo</span></div>
     <div class="li"><div class="dot" style="background:#eab308"></div><span>20–50 μg/m³ Moderado</span></div>
@@ -262,9 +355,34 @@ def generar_html(resultados, mapa_render, ahora):
     <div class="li"><div class="dot" style="background:#ef4444"></div><span>&gt; 100 μg/m³ Muy Alto</span></div>
     <div class="li">Buffer: Dos Cruces / Tucush / Usupallares = 2km &nbsp;·&nbsp; Quebrada = 1km</div>
   </div>
+
 </div>
+
 <script>
 const CHART_DATA = {chart_data};
+const HORA_CORTE = "{hora_corte}";
+const EJE_X_FIJO = CHART_DATA[0].eje_x;
+
+const LAYOUT_BASE = {{
+  paper_bgcolor: '#E3E3E3',
+  plot_bgcolor:  '#E3E3E3',
+  font:   {{ family:'Share Tech Mono, monospace', size:9, color:'#c9d8e8' }},
+  margin: {{ t:8, r:8, b:38, l:40 }},
+  xaxis: {{
+    showgrid:true, gridcolor:'#BBBBBB', gridwidth:1,
+    tickfont:{{ size:9 }}, color:'#333333', tickangle:-45,
+    type:'category',
+    categoryorder:'array',
+    categoryarray: EJE_X_FIJO,
+    range: [-0.5, EJE_X_FIJO.length - 0.5],
+  }},
+  yaxis: {{
+    showgrid:true, gridcolor:'#BBBBBB', gridwidth:1,
+    tickfont:{{ size:9 }}, color:'#333333', rangemode:'tozero',
+    title:{{ text:'μg/m³', font:{{ size:9, color:'#292929' }} }}
+  }},
+  showlegend: false,
+}};
 
 const scroll = document.getElementById('charts-scroll');
 
@@ -281,75 +399,53 @@ CHART_DATA.forEach((est, i) => {{
   block.appendChild(div);
   scroll.appendChild(block);
 
-  const layout = {{
-    paper_bgcolor: '#0a0e14',
-    plot_bgcolor:  '#0a0e14',
-    font:   {{ family:'Share Tech Mono, monospace', size:9, color:'#c9d8e8' }},
-    margin: {{ t:8, r:8, b:38, l:40 }},
-    xaxis: {{
-      showgrid:true, gridcolor:'#1e2d3d', gridwidth:1,
-      tickfont:{{ size:8 }}, color:'#4a6070', tickangle:-45,
-      type:'category',
-      categoryorder:'array',
-      categoryarray: est.eje_x,
-      range: [-0.5, est.eje_x.length - 0.5],
-    }},
-    yaxis: {{
-      showgrid:true, gridcolor:'#1e2d3d', gridwidth:1,
-      tickfont:{{ size:8 }}, color:'#4a6070', rangemode:'tozero',
-      title:{{ text:'μg/m³', font:{{ size:8, color:'#4a6070' }} }}
-    }},
-    showlegend: false,
-  }};
-
   const traces = [];
 
-  // Observados — vacío por ahora, zona gris en el eje X
   if (est.obs.length) {{
     traces.push({{
       x: est.obs.map(d => d.x),
       y: est.obs.map(d => d.y),
       type:'scatter', mode:'lines',
-      line:{{ color:'#94a3b8', width:1.5 }},
+      line:{{ color:'#283552', width:1.5 }},
       hovertemplate:'%{{x}}<br>%{{y:.2f}} μg/m³<extra></extra>',
     }});
   }}
 
-  // Pronóstico
   if (est.pron.length) {{
     traces.push({{
       x: est.pron.map(d => d.x),
       y: est.pron.map(d => d.y),
       type:'scatter', mode:'lines',
-      line:{{ color:'#00c8ff', width:1.5 }},
+      line:{{ color:'#0070A3', width:1.5 }},
       hovertemplate:'%{{x}}<br>%{{y:.2f}} μg/m³<extra></extra>',
     }});
   }}
 
-  // Máximo
   if (est.max_time) {{
     traces.push({{
       x:[est.max_time], y:[est.max_val],
       type:'scatter', mode:'markers+text',
-      marker:{{ color:'#ef4444', size:8, symbol:'circle',
+      marker:{{ color:'#850B0B', size:8, symbol:'circle',
                 line:{{ color:'#fff', width:1 }} }},
       text:[est.max_val.toFixed(2)],
-      textposition:'middle right',
-      textfont:{{ color:'#ef4444', size:9 }},
+      textposition:'bottom center',
+      textfont:{{ color:'#850B0B', size:12 }},
       hovertemplate:'Máx: %{{y:.2f}} μg/m³<extra></extra>',
     }});
   }}
 
-  // Línea vertical — inicio del pronóstico
-  if (est.inicio_pron) {{
-    layout.shapes = [{{
-      type:'line',
-      x0: est.inicio_pron, x1: est.inicio_pron,
-      y0:0, y1:1, yref:'paper',
-      line:{{ color:'#5E3A07', width:1.5, dash:'dash' }}
-    }}];
-  }}
+  const layout = JSON.parse(JSON.stringify(LAYOUT_BASE));
 
+  // Usar eje_x específico de cada estación (ventana dinámica)
+  layout.xaxis.categoryarray = est.eje_x;
+  layout.xaxis.range = [-0.5, est.eje_x.length - 0.5];
+
+  layout.shapes = [{{
+    type:'line',
+    x0: est.inicio_pron, x1: est.inicio_pron,
+    y0:0, y1:1, yref:'paper',
+    line:{{ color:'#E88D00', width:1.8, dash:'dash' }}
+  }}];
   layout.annotations = [];
 
   Plotly.newPlot('ch'+i, traces, layout, {{
