@@ -9,7 +9,7 @@ from datetime import datetime, timezone, timedelta
 # CONFIGURACIÓN
 # ══════════════════════════════════════════════════════════
 CLIENT_ID     = "antamina"
-CLIENT_SECRET = os.environ.get("METEOSIM_SECRET", "")
+CLIENT_SECRET = os.environ.get("METEOSIM_SECRET_NOWCASTING", "")
 TOKEN_URL     = "https://sso.meteosim.com/realms/suite/protocol/openid-connect/token"
 API_BASE      = "https://api.meteosim.com"
 SITE_ID       = "antamina_predictions"
