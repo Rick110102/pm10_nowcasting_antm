@@ -18,10 +18,10 @@ PERU_TZ       = timezone(timedelta(hours=-5))
 
 # Orden definido por usuario
 ESTACIONES = [
-    {"nombre": "Usupallares", "location_code": "USUPALLARES","lat": -9.55422, "lng": -77.07305, "buffer_m": 2000},
-    {"nombre": "Dos Cruces",  "location_code": "2CRUCES",    "lat": -9.56023, "lng": -77.05986, "buffer_m": 2000},
+    {"nombre": "Usupallares", "location_code": "USUPALLARES","lat": -9.55422, "lng": -77.07305, "buffer_m": 1000},
+    {"nombre": "Dos Cruces",  "location_code": "2CRUCES",    "lat": -9.56023, "lng": -77.05986, "buffer_m": 1000},
     {"nombre": "Quebrada",    "location_code": "QUEBRADA",   "lat": -9.55501, "lng": -77.08584, "buffer_m": 1000},
-    {"nombre": "Tucush",      "location_code": "TUCUSH",     "lat": -9.51011, "lng": -77.05715, "buffer_m": 2000},
+    {"nombre": "Tucush",      "location_code": "TUCUSH",     "lat": -9.51011, "lng": -77.05715, "buffer_m": 1000},
 ]
 
 # ══════════════════════════════════════════════════════════
@@ -93,12 +93,10 @@ def procesar(items):
 # ══════════════════════════════════════════════════════════
 def get_color(val):
     if val > 100: return "#ef4444", "MUY ALTO", "🔴"
-    if val > 50:  return "#f97316", "ALTO",     "🟠"
-    if val > 20:  return "#eab308", "MODERADO", "🟡"
     return             "#22c55e",  "BAJO",     "🟢"
 
 # ══════════════════════════════════════════════════════════
-# MAPA FOLIUM — con labels sutiles por estación
+# MAPA FOLIUM 
 # ══════════════════════════════════════════════════════════
 def generar_mapa(resultados):
     lat_c = sum(e["lat"] for e in ESTACIONES) / len(ESTACIONES)
@@ -150,16 +148,10 @@ def generar_mapa(resultados):
                     font-family:'Share Tech Mono',monospace;
                     font-size:10px;
                     color:#ffffff;
-                    background:rgba(0,0,0,0.45);
-                    border:1px solid rgba(255,255,255,0.25);
-                    border-radius:3px;
-                    padding:1px 6px;
                     white-space:nowrap;
                     pointer-events:none;
-                    transform:translate(-50%, -220%);
+                    transform:translate(-80%, 80%);
                 ">{est['nombre']}</div>""",
-                icon_size=(1, 1),
-                icon_anchor=(0, 0)
             )
         ).add_to(m)
 
@@ -349,11 +341,9 @@ def generar_html(resultados, mapa_render, ahora):
   </div>
 
   <div class="legend-map">
-    <div class="li"><div class="dot" style="background:#22c55e"></div><span>&lt; 20 μg/m³ Bajo</span></div>
-    <div class="li"><div class="dot" style="background:#eab308"></div><span>20–50 μg/m³ Moderado</span></div>
-    <div class="li"><div class="dot" style="background:#f97316"></div><span>50–100 μg/m³ Alto</span></div>
+    <div class="li"><div class="dot" style="background:#22c55e"></div><span>&lt; 100 μg/m³ Bajo</span></div>
     <div class="li"><div class="dot" style="background:#ef4444"></div><span>&gt; 100 μg/m³ Muy Alto</span></div>
-    <div class="li">Buffer: Dos Cruces / Tucush / Usupallares = 2km &nbsp;·&nbsp; Quebrada = 1km</div>
+    <div class="li">Buffer: Dos Cruces / Tucush / Usupallares / Quebrada = 1km</div>
   </div>
 
 </div>
