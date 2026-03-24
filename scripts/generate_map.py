@@ -12,7 +12,8 @@ CLIENT_ID     = "antamina"
 CLIENT_SECRET = os.environ.get("METEOSIM_SECRET", "")
 TOKEN_URL     = "https://sso.meteosim.com/realms/suite/protocol/openid-connect/token"
 API_BASE      = "https://api.meteosim.com"
-SITE_ID       = "antamina_predictions"
+SITE_PRON     = "antamina_predictions"
+SITE_OBS      = "antamina_observations"
 TOPIC         = "nowcasting"
 PERU_TZ       = timezone(timedelta(hours=-5))
 
@@ -40,21 +41,25 @@ def get_token():
 # ══════════════════════════════════════════════════════════
 # RECORD CODE — cada 5 minutos
 # ══════════════════════════════════════════════════════════
-def get_record_code(location_code):
+def get_record_code_pron(location_code):
     ts = (int(time.time()) // 300) * 300
-    code = (
-        f"alertdata:nowcasting:antamina_predictions:"
-        f"antamina-nowcasting:AlertaPM10_5minutal:"
-        f"{location_code}:{ts}"
-    )
-    print(f"  Record code: {code}")
+    code = (f"alertdata:nowcasting:antamina_predictions:"
+            f"antamina-nowcasting:AlertaPM10_5minutal:{location_code}:{ts}")
+    print(f"  [PRON] Record code: {code}")
+    return code
+
+def get_record_code_obs(location_code):
+    ts = (int(time.time()) // 300) * 300 - 7200
+    code = (f"alertdata:nowcasting:antamina_observations:"
+            f"antamina-nowcasting:AlertaPM10_5minutal:{location_code}:{ts}")
+    print(f"  [OBS]  Record code: {code}")
     return code
 
 # ══════════════════════════════════════════════════════════
 # CONSULTAR SERIE TEMPORAL
 # ══════════════════════════════════════════════════════════
-def get_timeserie(token, record_code):
-    url = f"{API_BASE}/v3/alertdata/{SITE_ID}/topics/{TOPIC}/records/{record_code}/timeserie"
+def get_timeserie(token, record_code, site_id):
+    url = f"{API_BASE}/v3/alertdata/{site_id}/topics/{TOPIC}/records/{record_code}/timeserie"
     print(f"  URL: {url}")
     r = requests.get(url, headers={
         "Accept":        "application/json",
@@ -65,9 +70,9 @@ def get_timeserie(token, record_code):
     return r.json()["items"]
 
 # ══════════════════════════════════════════════════════════
-# PROCESAR
+# PROCESAR PRONÓSTICO
 # ══════════════════════════════════════════════════════════
-def procesar(items):
+def procesar_pron(items):
     pronostico = []
     for item in items:
         t = datetime.fromisoformat(item["time"].replace("Z", "+00:00"))
@@ -79,14 +84,31 @@ def procesar(items):
         pronostico.append({"time": t, "value": round(val, 4)})
 
     if not pronostico:
-        return [], []
+        return []
 
     pronostico.sort(key=lambda x: x["time"])
     inicio = pronostico[0]["time"]
     fin    = inicio + timedelta(hours=1, minutes=55)
     pronostico = [r for r in pronostico if r["time"] <= fin]
+    return pronostico
+
+# ══════════════════════════════════════════════════════════
+# PROCESAR OBSERVADOS
+# ══════════════════════════════════════════════════════════
+def procesar_obs(items):
     observados = []
-    return observados, pronostico
+    for item in items:
+        t = datetime.fromisoformat(item["time"].replace("Z", "+00:00"))
+        t = t.astimezone(PERU_TZ).replace(tzinfo=None)
+        val = next((v["value"] for v in item.get("values", [])
+                    if v["variableId"] == "PM10"), None)
+        if val is None:
+            continue
+        observados.append({"time": t, "value": round(val, 4)})
+
+    observados.sort(key=lambda x: x["time"])
+    return observados
+
 
 # ══════════════════════════════════════════════════════════
 # COLOR
@@ -96,7 +118,7 @@ def get_color(val):
     return             "#22c55e",  "BAJO",     "🟢"
 
 # ══════════════════════════════════════════════════════════
-# MAPA FOLIUM 
+# MAPA FOLIUM
 # ══════════════════════════════════════════════════════════
 def generar_mapa(resultados):
     lat_c = sum(e["lat"] for e in ESTACIONES) / len(ESTACIONES)
@@ -395,8 +417,9 @@ CHART_DATA.forEach((est, i) => {{
     traces.push({{
       x: est.obs.map(d => d.x),
       y: est.obs.map(d => d.y),
-      type:'scatter', mode:'lines',
+      type:'scatter', mode:'lines+markers',
       line:{{ color:'#283552', width:1.5 }},
+      marker:{{color:'#283552', size:4, symbol:'circle'}},
       hovertemplate:'%{{x}}<br>%{{y:.2f}} μg/m³<extra></extra>',
     }});
   }}
@@ -405,8 +428,9 @@ CHART_DATA.forEach((est, i) => {{
     traces.push({{
       x: est.pron.map(d => d.x),
       y: est.pron.map(d => d.y),
-      type:'scatter', mode:'lines',
+      type:'scatter', mode:'lines+markers',
       line:{{ color:'#0070A3', width:1.5 }},
+      marker:{{color:'#0070A3', size:4, symbol:'circle'}},
       hovertemplate:'%{{x}}<br>%{{y:.2f}} μg/m³<extra></extra>',
     }});
   }}
@@ -473,9 +497,18 @@ if __name__ == "__main__":
         print(f"\n[{est['nombre']}] Consultando...")
         try:
             token       = get_token()
-            record_code = get_record_code(est["location_code"])
-            items       = get_timeserie(token, record_code)
-            obs, pron   = procesar(items)
+
+            # Pronostico
+            rc_pron    = get_record_code_pron(est["location_code"])
+            items_pron = get_timeserie(token, rc_pron, SITE_PRON)
+            pron       = procesar_pron(items_pron)
+            # Observados
+            rc_obs      = get_record_code_obs(est["location_code"])
+            items_obs   = get_timeserie(token, rc_obs, SITE_OBS)
+            obs         = procesar_obs(items_obs)
+
+            # Métricas
+            # toda_serie = obs + pron
             max_item    = max(pron, key=lambda x: x["value"]) if pron else None
             max_val     = max_item["value"] if max_item else 0
             max_time    = max_item["time"]  if max_item else None
