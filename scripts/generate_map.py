@@ -4,6 +4,7 @@ import json
 import os
 import time
 from datetime import datetime, timezone, timedelta
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # ══════════════════════════════════════════════════════════
 # CONFIGURACIÓN
@@ -17,7 +18,6 @@ SITE_OBS      = "antamina_observations"
 TOPIC         = "nowcasting"
 PERU_TZ       = timezone(timedelta(hours=-5))
 
-# Orden definido por usuario
 ESTACIONES = [
     {"nombre": "Usupallares", "location_code": "USUPALLARES","lat": -9.55422, "lng": -77.07305, "buffer_m": 1000},
     {"nombre": "Dos Cruces",  "location_code": "2CRUCES",    "lat": -9.56023, "lng": -77.05986, "buffer_m": 1000},
@@ -39,20 +39,19 @@ def get_token():
     return r.json()["access_token"]
 
 # ══════════════════════════════════════════════════════════
-# RECORD CODE — cada 5 minutos
+# RECORD CODES — timestamp fijo como parámetro
 # ══════════════════════════════════════════════════════════
-def get_record_code_pron(location_code):
-    ts = (int(time.time()) // 300) * 300
+def get_record_code_pron(location_code, ts):
     code = (f"alertdata:nowcasting:antamina_predictions:"
             f"antamina-nowcasting:AlertaPM10_5minutal:{location_code}:{ts}")
-    print(f"  [PRON] Record code: {code}")
+    print(f"  [PRON] {code}")
     return code
 
-def get_record_code_obs(location_code):
-    ts = (int(time.time()) // 300) * 300 - 7200
+def get_record_code_obs(location_code, ts):
+    ts_obs = ts - 7200
     code = (f"alertdata:nowcasting:antamina_observations:"
-            f"antamina-nowcasting:AlertaPM10_5minutal:{location_code}:{ts}")
-    print(f"  [OBS]  Record code: {code}")
+            f"antamina-nowcasting:AlertaPM10_5minutal:{location_code}:{ts_obs}")
+    print(f"  [OBS]  {code}")
     return code
 
 # ══════════════════════════════════════════════════════════
@@ -60,12 +59,11 @@ def get_record_code_obs(location_code):
 # ══════════════════════════════════════════════════════════
 def get_timeserie(token, record_code, site_id):
     url = f"{API_BASE}/v3/alertdata/{site_id}/topics/{TOPIC}/records/{record_code}/timeserie"
-    print(f"  URL: {url}")
     r = requests.get(url, headers={
         "Accept":        "application/json",
         "Authorization": f"Bearer {token}"
     })
-    print(f"  Status: {r.status_code}")
+    print(f"  [{site_id}] Status: {r.status_code}")
     r.raise_for_status()
     return r.json()["items"]
 
@@ -89,8 +87,7 @@ def procesar_pron(items):
     pronostico.sort(key=lambda x: x["time"])
     inicio = pronostico[0]["time"]
     fin    = inicio + timedelta(hours=1, minutes=55)
-    pronostico = [r for r in pronostico if r["time"] <= fin]
-    return pronostico
+    return [r for r in pronostico if r["time"] <= fin]
 
 # ══════════════════════════════════════════════════════════
 # PROCESAR OBSERVADOS
@@ -108,7 +105,6 @@ def procesar_obs(items):
 
     observados.sort(key=lambda x: x["time"])
     return observados
-
 
 # ══════════════════════════════════════════════════════════
 # COLOR
@@ -135,7 +131,6 @@ def generar_mapa(resultados):
         color, categoria, emoji = get_color(est["max_val"])
         km = est["buffer_m"] / 1000
 
-        # Buffer
         folium.Circle(
             location=[est["lat"], est["lng"]],
             radius=est["buffer_m"],
@@ -144,7 +139,6 @@ def generar_mapa(resultados):
             tooltip=f"{est['nombre']} · {est['max_val']:.2f} μg/m³ · {emoji} {categoria}"
         ).add_to(m)
 
-        # Punto central
         folium.CircleMarker(
             location=[est["lat"], est["lng"]],
             radius=6,
@@ -162,7 +156,6 @@ def generar_mapa(resultados):
             tooltip=f"{est['nombre']} · {est['max_val']:.2f} μg/m³"
         ).add_to(m)
 
-        # Label sutil sobre el buffer
         folium.Marker(
             location=[est["lat"], est["lng"]],
             icon=folium.DivIcon(
@@ -236,106 +229,34 @@ def generar_html(resultados, mapa_render, ahora):
   <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@300;400;600&display=swap" rel="stylesheet"/>
   <style>
-    :root {{
-      --bg:     #E3E3E3;
-      --panel:  #F5F5F5;
-      --border: #1e2d3d;
-      --accent: #000000;
-      --text:   #c9d8e8;
-      --muted:  #4a6070;
-      --legend: #F5F5F5;
-    }}
-    * {{ margin:0; padding:0; box-sizing:border-box; }}
-    html, body {{
-      height:100%; background:var(--bg);
-      color:var(--text); font-family:'Barlow',sans-serif;
-      overflow:hidden;
-    }}
-    header {{
-      height:48px; flex-shrink:0;
-      background:var(--panel);
-      border-bottom:1px solid var(--border);
-      padding:0 20px;
-      display:flex; align-items:center; gap:16px;
-    }}
-    .logo {{
-      font-family:'Share Tech Mono',monospace;
-      font-size:20px; color:var(--accent); letter-spacing:2px;
-    }}
-    .hdr-right {{
-      margin-left:auto;
-      font-family:'Share Tech Mono',monospace;
-      font-size:11px; color:var(--muted);
-      display:flex; gap:20px;
-    }}
-    .hdr-right span {{ color:var(--accent); }}
-    .body {{
-      display:grid;
-      grid-template-columns: 40% 60%;
-      grid-template-rows: calc(100vh - 84px) 36px;
-      height:calc(100vh - 48px);
-    }}
-    .charts-panel {{
-      grid-column:1; grid-row:1;
-      display:flex; flex-direction:column;
-      overflow:hidden;
-      border-right:1px solid var(--border);
-      background:var(--bg);
-    }}
-    .charts-scroll {{
-      flex:1; overflow-y:auto;
-      padding:8px 10px;
-      display:flex; flex-direction:column; gap:6px;
-    }}
-    .chart-block {{ flex-shrink:0; }}
-    .chart-label {{
-      font-family:'Share Tech Mono',monospace;
-      font-size:12px; color:var(--accent);
-      letter-spacing:1px; margin-bottom:2px;
-      padding-left:2px;
-    }}
-    .plotly-div {{ width:100%; height:180px; }}
-    .map-panel {{
-      grid-column:2; grid-row:1;
-      overflow:hidden; position:relative;
-    }}
-    .map-panel .folium-map {{
-      width:100% !important;
-      height:100% !important;
-    }}
-    .legend-charts {{
-      grid-column:1; grid-row:2;
-      background:var(--legend);
-      border-top:1px solid var(--border);
-      border-right:1px solid var(--border);
-      display:flex; align-items:center;
-      justify-content:center;
-      padding:0 10px; gap:16px;
-      font-family:'Share Tech Mono',monospace;
-      font-size:9px; color:var(--muted);
-    }}
-    .li {{ display:flex; align-items:center; gap:5px; }}
-    .line-solid {{ width:20px; height:2px; background:#283552; }}
-    .line-pron  {{ width:20px; height:2px; background:#0070A3; }}
-    .line-corte {{ width:2px; height:12px; background:#E88D00; }}
-    .dot-max    {{ width:8px; height:8px; border-radius:50%; background:#850B0B; }}
-    .legend-map {{
-      grid-column:2; grid-row:2;
-      background:var(--legend);
-      border-top:1px solid var(--border);
-      display:flex; align-items:center;
-      justify-content:center;
-      padding:0 14px; gap:16px;
-      font-family:'Share Tech Mono',monospace;
-      font-size:9px; color:var(--muted);
-    }}
-    .dot {{ width:10px; height:10px; border-radius:50%; flex-shrink:0; }}
-    ::-webkit-scrollbar {{ width:3px; }}
-    ::-webkit-scrollbar-thumb {{ background:var(--border); border-radius:2px; }}
+    :root {{--bg:#E3E3E3;--panel:#F5F5F5;--border:#1e2d3d;--accent:#000000;--text:#c9d8e8;--muted:#4a6070;--legend:#F5F5F5;}}
+    *{{margin:0;padding:0;box-sizing:border-box;}}
+    html,body{{height:100%;background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;overflow:hidden;}}
+    header{{height:48px;flex-shrink:0;background:var(--panel);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;gap:16px;}}
+    .logo{{font-family:'Share Tech Mono',monospace;font-size:20px;color:var(--accent);letter-spacing:2px;}}
+    .hdr-right{{margin-left:auto;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);display:flex;gap:20px;}}
+    .hdr-right span{{color:var(--accent);}}
+    .body{{display:grid;grid-template-columns:40% 60%;grid-template-rows:calc(100vh - 84px) 36px;height:calc(100vh - 48px);}}
+    .charts-panel{{grid-column:1;grid-row:1;display:flex;flex-direction:column;overflow:hidden;border-right:1px solid var(--border);background:var(--bg);}}
+    .charts-scroll{{flex:1;overflow-y:auto;padding:8px 10px;display:flex;flex-direction:column;gap:6px;}}
+    .chart-block{{flex-shrink:0;}}
+    .chart-label{{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--accent);letter-spacing:1px;margin-bottom:2px;padding-left:2px;}}
+    .plotly-div{{width:100%;height:180px;}}
+    .map-panel{{grid-column:2;grid-row:1;overflow:hidden;position:relative;}}
+    .map-panel .folium-map{{width:100% !important;height:100% !important;}}
+    .legend-charts{{grid-column:1;grid-row:2;background:var(--legend);border-top:1px solid var(--border);border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;padding:0 10px;gap:16px;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);}}
+    .li{{display:flex;align-items:center;gap:5px;}}
+    .line-solid{{width:20px;height:2px;background:#283552;}}
+    .line-pron{{width:20px;height:2px;background:#0070A3;}}
+    .line-corte{{width:2px;height:12px;background:#E88D00;}}
+    .dot-max{{width:8px;height:8px;border-radius:50%;background:#850B0B;}}
+    .legend-map{{grid-column:2;grid-row:2;background:var(--legend);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:center;padding:0 14px;gap:16px;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);}}
+    .dot{{width:10px;height:10px;border-radius:50%;flex-shrink:0;}}
+    ::-webkit-scrollbar{{width:3px;}}
+    ::-webkit-scrollbar-thumb{{background:var(--border);border-radius:2px;}}
   </style>
 </head>
 <body>
-
 <header>
   <div class="logo">ANTAMINA - MONITOR NOWCASTING PM10</div>
   <div class="hdr-right">
@@ -344,32 +265,21 @@ def generar_html(resultados, mapa_render, ahora):
     <div>Próx. <span>{hora_prox}</span></div>
   </div>
 </header>
-
 <div class="body">
-
-  <div class="charts-panel">
-    <div class="charts-scroll" id="charts-scroll"></div>
-  </div>
-
-  <div class="map-panel" id="map-panel">
-    {mapa_render}
-  </div>
-
+  <div class="charts-panel"><div class="charts-scroll" id="charts-scroll"></div></div>
+  <div class="map-panel" id="map-panel">{mapa_render}</div>
   <div class="legend-charts">
     <div class="li"><div class="line-solid"></div><span>Observado</span></div>
     <div class="li"><div class="line-pron"></div><span>Pronóstico</span></div>
     <div class="li"><div class="line-corte"></div><span>Inicio pronóstico</span></div>
     <div class="li"><div class="dot-max"></div><span>Máx. pronóstico</span></div>
   </div>
-
   <div class="legend-map">
     <div class="li"><div class="dot" style="background:#22c55e"></div><span>&lt; 100 μg/m³ Bajo</span></div>
     <div class="li"><div class="dot" style="background:#ef4444"></div><span>&gt; 100 μg/m³ Muy Alto</span></div>
     <div class="li">Buffer: Dos Cruces / Tucush / Usupallares / Quebrada = 1km</div>
   </div>
-
 </div>
-
 <script>
 const CHART_DATA = {chart_data};
 const HORA_CORTE = "{hora_corte}";
@@ -449,11 +359,8 @@ CHART_DATA.forEach((est, i) => {{
   }}
 
   const layout = JSON.parse(JSON.stringify(LAYOUT_BASE));
-
-  // Usar eje_x específico de cada estación (ventana dinámica)
   layout.xaxis.categoryarray = est.eje_x;
   layout.xaxis.range = [-0.5, est.eje_x.length - 0.5];
-
   layout.shapes = [{{
     type:'line',
     x0: est.inicio_pron, x1: est.inicio_pron,
@@ -481,62 +388,76 @@ setTimeout(function() {{
 </html>"""
 
 # ══════════════════════════════════════════════════════════
+# FUNCIÓN POR ESTACIÓN — para paralelizar
+# ══════════════════════════════════════════════════════════
+def consultar_estacion(est, token, ts_fijo):
+    try:
+        print(f"\n[{est['nombre']}] Consultando...")
+
+        rc_pron    = get_record_code_pron(est["location_code"], ts_fijo)
+        items_pron = get_timeserie(token, rc_pron, SITE_PRON)
+        pron       = procesar_pron(items_pron)
+
+        rc_obs    = get_record_code_obs(est["location_code"], ts_fijo)
+        items_obs = get_timeserie(token, rc_obs, SITE_OBS)
+        obs       = procesar_obs(items_obs)
+
+        max_item  = max(pron, key=lambda x: x["value"]) if pron else None
+        max_val   = max_item["value"] if max_item else 0
+        max_time  = max_item["time"]  if max_item else None
+        _, cat, emoji = get_color(max_val)
+        print(f"  [{est['nombre']}] Obs:{len(obs)} Pron:{len(pron)} Máx:{max_val:.2f} μg/m³ {emoji} {cat}")
+
+        return {
+            "nombre":     est["nombre"],
+            "lat":        est["lat"],
+            "lng":        est["lng"],
+            "buffer_m":   est["buffer_m"],
+            "max_val":    max_val,
+            "max_time":   max_time,
+            "observados": obs,
+            "pronostico": pron,
+        }
+    except Exception as e:
+        print(f"  [{est['nombre']}] ❌ Error: {e}")
+        return {
+            "nombre":     est["nombre"],
+            "lat":        est["lat"],
+            "lng":        est["lng"],
+            "buffer_m":   est["buffer_m"],
+            "max_val":    0,
+            "max_time":   None,
+            "observados": [],
+            "pronostico": [],
+        }
+
+# ══════════════════════════════════════════════════════════
 # MAIN
 # ══════════════════════════════════════════════════════════
 if __name__ == "__main__":
-    ahora = datetime.now(PERU_TZ).replace(tzinfo=None)
+    ahora   = datetime.now(PERU_TZ).replace(tzinfo=None)
+    token   = get_token()
+    ts_fijo = (int(time.time()) // 300) * 300
 
     print("=" * 55)
     print("  PM10 Nowcasting · Antamina · 4 Estaciones")
     print(f"  {ahora.strftime('%d/%m/%Y %H:%M:%S')} (Hora Perú)")
+    print(f"  Timestamp: {ts_fijo}")
     print("=" * 55)
 
-    resultados = []
+    # Ejecutar las 4 estaciones en paralelo
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        futuros = {
+            executor.submit(consultar_estacion, est, token, ts_fijo): est
+            for est in ESTACIONES
+        }
+        resultados_dict = {}
+        for futuro in as_completed(futuros):
+            est = futuros[futuro]
+            resultados_dict[est["nombre"]] = futuro.result()
 
-    for est in ESTACIONES:
-        print(f"\n[{est['nombre']}] Consultando...")
-        try:
-            token       = get_token()
-
-            # Pronostico
-            rc_pron    = get_record_code_pron(est["location_code"])
-            items_pron = get_timeserie(token, rc_pron, SITE_PRON)
-            pron       = procesar_pron(items_pron)
-            # Observados
-            rc_obs      = get_record_code_obs(est["location_code"])
-            items_obs   = get_timeserie(token, rc_obs, SITE_OBS)
-            obs         = procesar_obs(items_obs)
-
-            # Métricas
-            # toda_serie = obs + pron
-            max_item    = max(pron, key=lambda x: x["value"]) if pron else None
-            max_val     = max_item["value"] if max_item else 0
-            max_time    = max_item["time"]  if max_item else None
-            _, cat, emoji = get_color(max_val)
-            print(f"  Obs:{len(obs)} Pron:{len(pron)} Máx:{max_val:.2f} μg/m³ {emoji} {cat}")
-
-            resultados.append({
-                "nombre":     est["nombre"],
-                "lat":        est["lat"],
-                "lng":        est["lng"],
-                "buffer_m":   est["buffer_m"],
-                "max_val":    max_val,
-                "max_time":   max_time,
-                "observados": obs,
-                "pronostico": pron,
-            })
-        except Exception as e:
-            print(f"  ❌ Error: {e}")
-            resultados.append({
-                "nombre":     est["nombre"],
-                "lat":        est["lat"],
-                "lng":        est["lng"],
-                "buffer_m":   est["buffer_m"],
-                "max_val":    0,
-                "max_time":   None,
-                "observados": [],
-                "pronostico": [],
-            })
+    # Restaurar el orden definido en ESTACIONES
+    resultados = [resultados_dict[est["nombre"]] for est in ESTACIONES]
 
     mapa_render = generar_mapa(resultados)
     html        = generar_html(resultados, mapa_render, ahora)
