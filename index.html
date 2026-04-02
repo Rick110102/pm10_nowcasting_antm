@@ -39,9 +39,9 @@
 <header>
   <div class="logo">ANTAMINA - MONITOR NOWCASTING PM10</div>
   <div class="hdr-right">
-    <div>Corte: <span>15:03</span></div>
-    <div>Actualizado: <span>02/04/2026 15:03</span> (Perú)</div>
-    <div>Próx. <span>15:08</span></div>
+    <div>Corte: <span>15:08</span></div>
+    <div>Actualizado: <span>02/04/2026 15:08</span> (Perú)</div>
+    <div>Próx. <span>15:13</span></div>
   </div>
 </header>
 <div class="body">
@@ -65,7 +65,7 @@
             <meta name="viewport" content="width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
             <style>
-                #map_a651f4c67182c550af74be1fe49ca70c {
+                #map_766db1c44ab49b632a998c0bf935f898 {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -102,14 +102,14 @@
 <body>
     
     
-            <div class="folium-map" id="map_a651f4c67182c550af74be1fe49ca70c" ></div>
+            <div class="folium-map" id="map_766db1c44ab49b632a998c0bf935f898" ></div>
         
 </body>
 <script>
     
     
-            var map_a651f4c67182c550af74be1fe49ca70c = L.map(
-                "map_a651f4c67182c550af74be1fe49ca70c",
+            var map_766db1c44ab49b632a998c0bf935f898 = L.map(
+                "map_766db1c44ab49b632a998c0bf935f898",
                 {
                     center: [-9.5448925, -77.068975],
                     crs: L.CRS.EPSG3857,
@@ -126,7 +126,7 @@
 
         
     
-            var tile_layer_30544858694afe0da328064190f8b509 = L.tileLayer(
+            var tile_layer_d7b5905c8bac8cebb1149e39881e66b9 = L.tileLayer(
                 "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
                 {
   "minZoom": 0,
@@ -143,18 +143,18 @@
             );
         
     
-            tile_layer_30544858694afe0da328064190f8b509.addTo(map_a651f4c67182c550af74be1fe49ca70c);
+            tile_layer_d7b5905c8bac8cebb1149e39881e66b9.addTo(map_766db1c44ab49b632a998c0bf935f898);
         
     
-            var circle_5e32548af835b578c741b6dace8cae7b = L.circle(
+            var circle_820d3e4e0681c44d33ae7271b71d05fe = L.circle(
                 [-9.55422, -77.07305],
                 {"bubblingMouseEvents": true, "color": "#22c55e", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#22c55e", "fillOpacity": 0.22, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 1000, "stroke": true, "weight": 2}
-            ).addTo(map_a651f4c67182c550af74be1fe49ca70c);
+            ).addTo(map_766db1c44ab49b632a998c0bf935f898);
         
     
-            circle_5e32548af835b578c741b6dace8cae7b.bindTooltip(
+            circle_820d3e4e0681c44d33ae7271b71d05fe.bindTooltip(
                 `<div>
-                     Usupallares · 0.00 μg/m³ · 🟢 BAJO
+                     Usupallares · 1.03 μg/m³ · 🟢 BAJO
                  </div>`,
                 {
   "sticky": true,
@@ -162,32 +162,32 @@
             );
         
     
-            var circle_marker_3076d6f23a25025cd4cb36d4f7c65d07 = L.circleMarker(
+            var circle_marker_d1226b9ade56c3d7bcf0db887771256c = L.circleMarker(
                 [-9.55422, -77.07305],
                 {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#22c55e", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 2}
-            ).addTo(map_a651f4c67182c550af74be1fe49ca70c);
+            ).addTo(map_766db1c44ab49b632a998c0bf935f898);
         
     
-        var popup_f08429966b999efa3310c420d309e785 = L.popup({
+        var popup_8c897f84b5197ba40f97cf86db11c34c = L.popup({
   "maxWidth": 220,
 });
 
         
             
-                var html_d8c4cdf5fece48078625c287c97811a3 = $(`<div id="html_d8c4cdf5fece48078625c287c97811a3" style="width: 100.0%; height: 100.0%;">                 <div style='font-family:monospace;min-width:190px;padding:4px'>                 <b>📍 Usupallares</b>                 <hr style='margin:4px 0'>                 PM10 Máx: <b>0.00 μg/m³</b><br>                 Categoría: <b style='color:#22c55e'>🟢 BAJO</b><br>                 Hora máx: <b>—</b><br>                 Buffer: <b>1 km</b>                 </div></div>`)[0];
-                popup_f08429966b999efa3310c420d309e785.setContent(html_d8c4cdf5fece48078625c287c97811a3);
+                var html_adfc003d13dfaaa79edcea178c22ed1b = $(`<div id="html_adfc003d13dfaaa79edcea178c22ed1b" style="width: 100.0%; height: 100.0%;">                 <div style='font-family:monospace;min-width:190px;padding:4px'>                 <b>📍 Usupallares</b>                 <hr style='margin:4px 0'>                 PM10 Máx: <b>1.03 μg/m³</b><br>                 Categoría: <b style='color:#22c55e'>🟢 BAJO</b><br>                 Hora máx: <b>15:55</b><br>                 Buffer: <b>1 km</b>                 </div></div>`)[0];
+                popup_8c897f84b5197ba40f97cf86db11c34c.setContent(html_adfc003d13dfaaa79edcea178c22ed1b);
             
         
 
-        circle_marker_3076d6f23a25025cd4cb36d4f7c65d07.bindPopup(popup_f08429966b999efa3310c420d309e785)
+        circle_marker_d1226b9ade56c3d7bcf0db887771256c.bindPopup(popup_8c897f84b5197ba40f97cf86db11c34c)
         ;
 
         
     
     
-            circle_marker_3076d6f23a25025cd4cb36d4f7c65d07.bindTooltip(
+            circle_marker_d1226b9ade56c3d7bcf0db887771256c.bindTooltip(
                 `<div>
-                     Usupallares · 0.00 μg/m³
+                     Usupallares · 1.03 μg/m³
                  </div>`,
                 {
   "sticky": true,
@@ -195,31 +195,31 @@
             );
         
     
-            var marker_47b247b167a987f009c2a3741be7c5ac = L.marker(
+            var marker_805ccfa74bf604764a8f7a499986a65c = L.marker(
                 [-9.55422, -77.07305],
                 {
 }
-            ).addTo(map_a651f4c67182c550af74be1fe49ca70c);
+            ).addTo(map_766db1c44ab49b632a998c0bf935f898);
         
     
-            var div_icon_b632476e7a6d307d8dedf01651a267f6 = L.divIcon({
+            var div_icon_608b3398f9c80bead9880729be437aa5 = L.divIcon({
   "html": "\u003cdiv style=\"\n                    font-family:\u0027Share Tech Mono\u0027,monospace;\n                    font-size:10px;\n                    color:#ffffff;\n                    white-space:nowrap;\n                    pointer-events:none;\n                    transform:translate(-80%, 80%);\n                \"\u003eUsupallares\u003c/div\u003e",
   "className": "empty",
 });
         
     
-                marker_47b247b167a987f009c2a3741be7c5ac.setIcon(div_icon_b632476e7a6d307d8dedf01651a267f6);
+                marker_805ccfa74bf604764a8f7a499986a65c.setIcon(div_icon_608b3398f9c80bead9880729be437aa5);
             
     
-            var circle_097540b4048750edbfb0d3803dcda9e8 = L.circle(
+            var circle_085c5bda23265d796d8db50e81455abe = L.circle(
                 [-9.56023, -77.05986],
                 {"bubblingMouseEvents": true, "color": "#22c55e", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#22c55e", "fillOpacity": 0.22, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 1000, "stroke": true, "weight": 2}
-            ).addTo(map_a651f4c67182c550af74be1fe49ca70c);
+            ).addTo(map_766db1c44ab49b632a998c0bf935f898);
         
     
-            circle_097540b4048750edbfb0d3803dcda9e8.bindTooltip(
+            circle_085c5bda23265d796d8db50e81455abe.bindTooltip(
                 `<div>
-                     Dos Cruces · 0.00 μg/m³ · 🟢 BAJO
+                     Dos Cruces · 12.04 μg/m³ · 🟢 BAJO
                  </div>`,
                 {
   "sticky": true,
@@ -227,32 +227,32 @@
             );
         
     
-            var circle_marker_00bcc736cf4d5e9431ce383380cd303c = L.circleMarker(
+            var circle_marker_5d6ed4dbcf8bc074f181490489443bd4 = L.circleMarker(
                 [-9.56023, -77.05986],
                 {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#22c55e", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 2}
-            ).addTo(map_a651f4c67182c550af74be1fe49ca70c);
+            ).addTo(map_766db1c44ab49b632a998c0bf935f898);
         
     
-        var popup_49423d1cfc1b9f600e5a35396524d91c = L.popup({
+        var popup_53fcd142363568f30ea3ee58544561f8 = L.popup({
   "maxWidth": 220,
 });
 
         
             
-                var html_f81495d1ece90b8d85e52ce7bc993ce3 = $(`<div id="html_f81495d1ece90b8d85e52ce7bc993ce3" style="width: 100.0%; height: 100.0%;">                 <div style='font-family:monospace;min-width:190px;padding:4px'>                 <b>📍 Dos Cruces</b>                 <hr style='margin:4px 0'>                 PM10 Máx: <b>0.00 μg/m³</b><br>                 Categoría: <b style='color:#22c55e'>🟢 BAJO</b><br>                 Hora máx: <b>—</b><br>                 Buffer: <b>1 km</b>                 </div></div>`)[0];
-                popup_49423d1cfc1b9f600e5a35396524d91c.setContent(html_f81495d1ece90b8d85e52ce7bc993ce3);
+                var html_df59c171cfef696849beb936f5cb44a6 = $(`<div id="html_df59c171cfef696849beb936f5cb44a6" style="width: 100.0%; height: 100.0%;">                 <div style='font-family:monospace;min-width:190px;padding:4px'>                 <b>📍 Dos Cruces</b>                 <hr style='margin:4px 0'>                 PM10 Máx: <b>12.04 μg/m³</b><br>                 Categoría: <b style='color:#22c55e'>🟢 BAJO</b><br>                 Hora máx: <b>15:45</b><br>                 Buffer: <b>1 km</b>                 </div></div>`)[0];
+                popup_53fcd142363568f30ea3ee58544561f8.setContent(html_df59c171cfef696849beb936f5cb44a6);
             
         
 
-        circle_marker_00bcc736cf4d5e9431ce383380cd303c.bindPopup(popup_49423d1cfc1b9f600e5a35396524d91c)
+        circle_marker_5d6ed4dbcf8bc074f181490489443bd4.bindPopup(popup_53fcd142363568f30ea3ee58544561f8)
         ;
 
         
     
     
-            circle_marker_00bcc736cf4d5e9431ce383380cd303c.bindTooltip(
+            circle_marker_5d6ed4dbcf8bc074f181490489443bd4.bindTooltip(
                 `<div>
-                     Dos Cruces · 0.00 μg/m³
+                     Dos Cruces · 12.04 μg/m³
                  </div>`,
                 {
   "sticky": true,
@@ -260,31 +260,31 @@
             );
         
     
-            var marker_f906099ddc5a372be53ca7c2da7d131f = L.marker(
+            var marker_181961410641e8e6df4de21a46238b52 = L.marker(
                 [-9.56023, -77.05986],
                 {
 }
-            ).addTo(map_a651f4c67182c550af74be1fe49ca70c);
+            ).addTo(map_766db1c44ab49b632a998c0bf935f898);
         
     
-            var div_icon_30f71f41109fb8a0e6133433ff69138b = L.divIcon({
+            var div_icon_2c0360a73b7a3c98c2e304f712fcc6a9 = L.divIcon({
   "html": "\u003cdiv style=\"\n                    font-family:\u0027Share Tech Mono\u0027,monospace;\n                    font-size:10px;\n                    color:#ffffff;\n                    white-space:nowrap;\n                    pointer-events:none;\n                    transform:translate(-80%, 80%);\n                \"\u003eDos Cruces\u003c/div\u003e",
   "className": "empty",
 });
         
     
-                marker_f906099ddc5a372be53ca7c2da7d131f.setIcon(div_icon_30f71f41109fb8a0e6133433ff69138b);
+                marker_181961410641e8e6df4de21a46238b52.setIcon(div_icon_2c0360a73b7a3c98c2e304f712fcc6a9);
             
     
-            var circle_65f82bf70efe8d0c9528cdb89195a848 = L.circle(
+            var circle_80c0a33d868487426832ebdbfca6d95c = L.circle(
                 [-9.55501, -77.08584],
                 {"bubblingMouseEvents": true, "color": "#22c55e", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#22c55e", "fillOpacity": 0.22, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 1000, "stroke": true, "weight": 2}
-            ).addTo(map_a651f4c67182c550af74be1fe49ca70c);
+            ).addTo(map_766db1c44ab49b632a998c0bf935f898);
         
     
-            circle_65f82bf70efe8d0c9528cdb89195a848.bindTooltip(
+            circle_80c0a33d868487426832ebdbfca6d95c.bindTooltip(
                 `<div>
-                     Quebrada · 0.00 μg/m³ · 🟢 BAJO
+                     Quebrada · 0.30 μg/m³ · 🟢 BAJO
                  </div>`,
                 {
   "sticky": true,
@@ -292,32 +292,32 @@
             );
         
     
-            var circle_marker_60df234d284175b2079ab8a7e1e2489a = L.circleMarker(
+            var circle_marker_67e9bab4440c8e059f86a190ac413f71 = L.circleMarker(
                 [-9.55501, -77.08584],
                 {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#22c55e", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 2}
-            ).addTo(map_a651f4c67182c550af74be1fe49ca70c);
+            ).addTo(map_766db1c44ab49b632a998c0bf935f898);
         
     
-        var popup_b399d3ac9de501ed6c78dae8d6002ca3 = L.popup({
+        var popup_68604fa3758484a6fffababd1388ee06 = L.popup({
   "maxWidth": 220,
 });
 
         
             
-                var html_97782655003800710035881000e1d1a8 = $(`<div id="html_97782655003800710035881000e1d1a8" style="width: 100.0%; height: 100.0%;">                 <div style='font-family:monospace;min-width:190px;padding:4px'>                 <b>📍 Quebrada</b>                 <hr style='margin:4px 0'>                 PM10 Máx: <b>0.00 μg/m³</b><br>                 Categoría: <b style='color:#22c55e'>🟢 BAJO</b><br>                 Hora máx: <b>—</b><br>                 Buffer: <b>1 km</b>                 </div></div>`)[0];
-                popup_b399d3ac9de501ed6c78dae8d6002ca3.setContent(html_97782655003800710035881000e1d1a8);
+                var html_2d62ae00d6b35ea2e7d403f250c951e6 = $(`<div id="html_2d62ae00d6b35ea2e7d403f250c951e6" style="width: 100.0%; height: 100.0%;">                 <div style='font-family:monospace;min-width:190px;padding:4px'>                 <b>📍 Quebrada</b>                 <hr style='margin:4px 0'>                 PM10 Máx: <b>0.30 μg/m³</b><br>                 Categoría: <b style='color:#22c55e'>🟢 BAJO</b><br>                 Hora máx: <b>15:05</b><br>                 Buffer: <b>1 km</b>                 </div></div>`)[0];
+                popup_68604fa3758484a6fffababd1388ee06.setContent(html_2d62ae00d6b35ea2e7d403f250c951e6);
             
         
 
-        circle_marker_60df234d284175b2079ab8a7e1e2489a.bindPopup(popup_b399d3ac9de501ed6c78dae8d6002ca3)
+        circle_marker_67e9bab4440c8e059f86a190ac413f71.bindPopup(popup_68604fa3758484a6fffababd1388ee06)
         ;
 
         
     
     
-            circle_marker_60df234d284175b2079ab8a7e1e2489a.bindTooltip(
+            circle_marker_67e9bab4440c8e059f86a190ac413f71.bindTooltip(
                 `<div>
-                     Quebrada · 0.00 μg/m³
+                     Quebrada · 0.30 μg/m³
                  </div>`,
                 {
   "sticky": true,
@@ -325,31 +325,31 @@
             );
         
     
-            var marker_2c221cf74bd138b7d076194ba8a22b78 = L.marker(
+            var marker_46849810b2e02caae02d522fe0cfc4bb = L.marker(
                 [-9.55501, -77.08584],
                 {
 }
-            ).addTo(map_a651f4c67182c550af74be1fe49ca70c);
+            ).addTo(map_766db1c44ab49b632a998c0bf935f898);
         
     
-            var div_icon_1dfcc4f70f825d8ff7bb58d9caa92267 = L.divIcon({
+            var div_icon_a89415849fd0f583b2c5d497827291c9 = L.divIcon({
   "html": "\u003cdiv style=\"\n                    font-family:\u0027Share Tech Mono\u0027,monospace;\n                    font-size:10px;\n                    color:#ffffff;\n                    white-space:nowrap;\n                    pointer-events:none;\n                    transform:translate(-80%, 80%);\n                \"\u003eQuebrada\u003c/div\u003e",
   "className": "empty",
 });
         
     
-                marker_2c221cf74bd138b7d076194ba8a22b78.setIcon(div_icon_1dfcc4f70f825d8ff7bb58d9caa92267);
+                marker_46849810b2e02caae02d522fe0cfc4bb.setIcon(div_icon_a89415849fd0f583b2c5d497827291c9);
             
     
-            var circle_b2212244ed3eac590746f1e17b12b717 = L.circle(
+            var circle_3e3b9445ceb70b56d2f760097d896af1 = L.circle(
                 [-9.51011, -77.05715],
                 {"bubblingMouseEvents": true, "color": "#22c55e", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#22c55e", "fillOpacity": 0.22, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 1000, "stroke": true, "weight": 2}
-            ).addTo(map_a651f4c67182c550af74be1fe49ca70c);
+            ).addTo(map_766db1c44ab49b632a998c0bf935f898);
         
     
-            circle_b2212244ed3eac590746f1e17b12b717.bindTooltip(
+            circle_3e3b9445ceb70b56d2f760097d896af1.bindTooltip(
                 `<div>
-                     Tucush · 0.00 μg/m³ · 🟢 BAJO
+                     Tucush · 7.20 μg/m³ · 🟢 BAJO
                  </div>`,
                 {
   "sticky": true,
@@ -357,32 +357,32 @@
             );
         
     
-            var circle_marker_402b10fd8f3903b3217c1082d79bcf03 = L.circleMarker(
+            var circle_marker_61d061c0c58ddda4898fe5c5f2a98872 = L.circleMarker(
                 [-9.51011, -77.05715],
                 {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#22c55e", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 2}
-            ).addTo(map_a651f4c67182c550af74be1fe49ca70c);
+            ).addTo(map_766db1c44ab49b632a998c0bf935f898);
         
     
-        var popup_def65dae0f06b99f6e222e0cbb6c8b00 = L.popup({
+        var popup_8f652fa0e0f0078bafa58b805e7861d8 = L.popup({
   "maxWidth": 220,
 });
 
         
             
-                var html_667e07fbbd67ef91f37c449695252dd1 = $(`<div id="html_667e07fbbd67ef91f37c449695252dd1" style="width: 100.0%; height: 100.0%;">                 <div style='font-family:monospace;min-width:190px;padding:4px'>                 <b>📍 Tucush</b>                 <hr style='margin:4px 0'>                 PM10 Máx: <b>0.00 μg/m³</b><br>                 Categoría: <b style='color:#22c55e'>🟢 BAJO</b><br>                 Hora máx: <b>—</b><br>                 Buffer: <b>1 km</b>                 </div></div>`)[0];
-                popup_def65dae0f06b99f6e222e0cbb6c8b00.setContent(html_667e07fbbd67ef91f37c449695252dd1);
+                var html_4b1bbaf33d29ab0caf79652adf9a6b4e = $(`<div id="html_4b1bbaf33d29ab0caf79652adf9a6b4e" style="width: 100.0%; height: 100.0%;">                 <div style='font-family:monospace;min-width:190px;padding:4px'>                 <b>📍 Tucush</b>                 <hr style='margin:4px 0'>                 PM10 Máx: <b>7.20 μg/m³</b><br>                 Categoría: <b style='color:#22c55e'>🟢 BAJO</b><br>                 Hora máx: <b>17:00</b><br>                 Buffer: <b>1 km</b>                 </div></div>`)[0];
+                popup_8f652fa0e0f0078bafa58b805e7861d8.setContent(html_4b1bbaf33d29ab0caf79652adf9a6b4e);
             
         
 
-        circle_marker_402b10fd8f3903b3217c1082d79bcf03.bindPopup(popup_def65dae0f06b99f6e222e0cbb6c8b00)
+        circle_marker_61d061c0c58ddda4898fe5c5f2a98872.bindPopup(popup_8f652fa0e0f0078bafa58b805e7861d8)
         ;
 
         
     
     
-            circle_marker_402b10fd8f3903b3217c1082d79bcf03.bindTooltip(
+            circle_marker_61d061c0c58ddda4898fe5c5f2a98872.bindTooltip(
                 `<div>
-                     Tucush · 0.00 μg/m³
+                     Tucush · 7.20 μg/m³
                  </div>`,
                 {
   "sticky": true,
@@ -390,20 +390,20 @@
             );
         
     
-            var marker_3a93fbe1d5986deb273db34bc65b0b54 = L.marker(
+            var marker_45fec4678aa86f9cc1485139ded44d75 = L.marker(
                 [-9.51011, -77.05715],
                 {
 }
-            ).addTo(map_a651f4c67182c550af74be1fe49ca70c);
+            ).addTo(map_766db1c44ab49b632a998c0bf935f898);
         
     
-            var div_icon_03304e79eab507c0e31fb1c6e6edd2ae = L.divIcon({
+            var div_icon_424f0ea141b3ead460e1a1c23fa1a68a = L.divIcon({
   "html": "\u003cdiv style=\"\n                    font-family:\u0027Share Tech Mono\u0027,monospace;\n                    font-size:10px;\n                    color:#ffffff;\n                    white-space:nowrap;\n                    pointer-events:none;\n                    transform:translate(-80%, 80%);\n                \"\u003eTucush\u003c/div\u003e",
   "className": "empty",
 });
         
     
-                marker_3a93fbe1d5986deb273db34bc65b0b54.setIcon(div_icon_03304e79eab507c0e31fb1c6e6edd2ae);
+                marker_45fec4678aa86f9cc1485139ded44d75.setIcon(div_icon_424f0ea141b3ead460e1a1c23fa1a68a);
             
 </script>
 </html></div>
@@ -420,8 +420,8 @@
   </div>
 </div>
 <script>
-const CHART_DATA = [{"nombre": "Usupallares", "color": "#22c55e", "obs": [], "pron": [], "max_val": 0, "max_time": null, "eje_x": [], "inicio_pron": null}, {"nombre": "Dos Cruces", "color": "#22c55e", "obs": [], "pron": [], "max_val": 0, "max_time": null, "eje_x": [], "inicio_pron": null}, {"nombre": "Quebrada", "color": "#22c55e", "obs": [], "pron": [], "max_val": 0, "max_time": null, "eje_x": [], "inicio_pron": null}, {"nombre": "Tucush", "color": "#22c55e", "obs": [], "pron": [], "max_val": 0, "max_time": null, "eje_x": [], "inicio_pron": null}];
-const HORA_CORTE = "15:03";
+const CHART_DATA = [{"nombre": "Usupallares", "color": "#22c55e", "obs": [{"x": "13:05", "y": 0.6808}, {"x": "13:10", "y": 0.6683}, {"x": "13:15", "y": 0.6567}, {"x": "13:20", "y": 0.6517}, {"x": "13:25", "y": 0.6458}, {"x": "13:30", "y": 0.6408}, {"x": "13:35", "y": 0.6317}, {"x": "13:40", "y": 0.6292}, {"x": "13:50", "y": 1.5044}, {"x": "13:55", "y": 1.5144}, {"x": "14:00", "y": 1.5152}, {"x": "14:10", "y": 1.5127}, {"x": "14:15", "y": 1.5052}, {"x": "14:20", "y": 1.5294}, {"x": "14:25", "y": 1.4986}, {"x": "14:30", "y": 1.4144}, {"x": "14:35", "y": 1.3711}, {"x": "14:40", "y": 1.3802}, {"x": "14:45", "y": 1.3852}, {"x": "14:50", "y": 1.3861}, {"x": "14:55", "y": 1.4077}, {"x": "15:00", "y": 1.4036}], "pron": [{"x": "15:05", "y": 0.9773}, {"x": "15:10", "y": 0.9182}, {"x": "15:15", "y": 0.8608}, {"x": "15:20", "y": 0.8705}, {"x": "15:25", "y": 0.9033}, {"x": "15:30", "y": 0.9413}, {"x": "15:35", "y": 0.9752}, {"x": "15:40", "y": 1.0009}, {"x": "15:45", "y": 1.0176}, {"x": "15:50", "y": 1.0259}, {"x": "15:55", "y": 1.0271}, {"x": "16:00", "y": 0.7806}, {"x": "16:05", "y": 0.7606}, {"x": "16:10", "y": 0.7524}, {"x": "16:15", "y": 0.7449}, {"x": "16:20", "y": 0.7361}, {"x": "16:25", "y": 0.7258}, {"x": "16:30", "y": 0.7147}, {"x": "16:35", "y": 0.7029}, {"x": "16:40", "y": 0.6911}, {"x": "16:45", "y": 0.6792}, {"x": "16:50", "y": 0.6677}, {"x": "16:55", "y": 0.6565}, {"x": "17:00", "y": 0.6052}], "max_val": 1.0271, "max_time": "15:55", "eje_x": ["13:05", "13:10", "13:15", "13:20", "13:25", "13:30", "13:35", "13:40", "13:45", "13:50", "13:55", "14:00", "14:05", "14:10", "14:15", "14:20", "14:25", "14:30", "14:35", "14:40", "14:45", "14:50", "14:55", "15:00", "15:05", "15:10", "15:15", "15:20", "15:25", "15:30", "15:35", "15:40", "15:45", "15:50", "15:55", "16:00", "16:05", "16:10", "16:15", "16:20", "16:25", "16:30", "16:35", "16:40", "16:45", "16:50", "16:55", "17:00"], "inicio_pron": "15:05"}, {"nombre": "Dos Cruces", "color": "#22c55e", "obs": [{"x": "13:05", "y": 6.729}, {"x": "13:15", "y": 6.5936}, {"x": "13:25", "y": 6.4873}, {"x": "13:35", "y": 7.2638}, {"x": "13:45", "y": 7.9127}, {"x": "13:55", "y": 8.7368}, {"x": "14:05", "y": 9.6531}, {"x": "14:15", "y": 10.4405}, {"x": "14:25", "y": 10.7934}, {"x": "14:30", "y": 10.4243}, {"x": "14:35", "y": 10.8846}, {"x": "14:45", "y": 11.7312}, {"x": "14:55", "y": 11.6145}], "pron": [{"x": "15:05", "y": 11.7185}, {"x": "15:10", "y": 11.8778}, {"x": "15:15", "y": 11.8542}, {"x": "15:20", "y": 11.8769}, {"x": "15:25", "y": 11.9149}, {"x": "15:30", "y": 11.9575}, {"x": "15:35", "y": 11.9967}, {"x": "15:40", "y": 12.0265}, {"x": "15:45", "y": 12.0412}, {"x": "15:50", "y": 12.0359}, {"x": "15:55", "y": 12.0072}, {"x": "16:00", "y": 10.1917}, {"x": "16:05", "y": 9.9736}, {"x": "16:10", "y": 9.796}, {"x": "16:15", "y": 9.6153}, {"x": "16:20", "y": 9.4293}, {"x": "16:25", "y": 9.237}, {"x": "16:30", "y": 9.0402}, {"x": "16:35", "y": 8.8414}, {"x": "16:40", "y": 8.6431}, {"x": "16:45", "y": 8.4478}, {"x": "16:50", "y": 8.2576}, {"x": "16:55", "y": 8.0742}, {"x": "17:00", "y": 8.4062}], "max_val": 12.0412, "max_time": "15:45", "eje_x": ["13:05", "13:10", "13:15", "13:20", "13:25", "13:30", "13:35", "13:40", "13:45", "13:50", "13:55", "14:00", "14:05", "14:10", "14:15", "14:20", "14:25", "14:30", "14:35", "14:40", "14:45", "14:50", "14:55", "15:00", "15:05", "15:10", "15:15", "15:20", "15:25", "15:30", "15:35", "15:40", "15:45", "15:50", "15:55", "16:00", "16:05", "16:10", "16:15", "16:20", "16:25", "16:30", "16:35", "16:40", "16:45", "16:50", "16:55", "17:00"], "inicio_pron": "15:05"}, {"nombre": "Quebrada", "color": "#22c55e", "obs": [{"x": "13:05", "y": 0.5569}, {"x": "13:10", "y": 0.5569}, {"x": "13:15", "y": 0.5537}, {"x": "13:20", "y": 0.5506}, {"x": "13:25", "y": 0.5507}, {"x": "13:30", "y": 0.5507}, {"x": "13:35", "y": 0.5468}, {"x": "13:45", "y": 0.5414}, {"x": "13:50", "y": 0.5432}, {"x": "13:55", "y": 0.7268}, {"x": "14:00", "y": 0.7335}, {"x": "14:05", "y": 0.7396}, {"x": "14:15", "y": 0.7658}, {"x": "14:25", "y": 0.7648}, {"x": "14:30", "y": 0.7672}, {"x": "14:35", "y": 0.7673}, {"x": "14:45", "y": 0.7515}, {"x": "14:50", "y": 0.7352}, {"x": "14:55", "y": 0.3116}, {"x": "15:00", "y": 0.2519}], "pron": [{"x": "15:05", "y": 0.2992}, {"x": "15:10", "y": 0.2648}, {"x": "15:15", "y": 0.2362}, {"x": "15:20", "y": 0.2194}, {"x": "15:25", "y": 0.2092}, {"x": "15:30", "y": 0.2029}, {"x": "15:35", "y": 0.1988}, {"x": "15:40", "y": 0.1962}, {"x": "15:45", "y": 0.1943}, {"x": "15:50", "y": 0.1931}, {"x": "15:55", "y": 0.1922}, {"x": "16:00", "y": 0.1751}, {"x": "16:05", "y": 0.1746}, {"x": "16:10", "y": 0.1744}, {"x": "16:15", "y": 0.1744}, {"x": "16:20", "y": 0.1745}, {"x": "16:25", "y": 0.1747}, {"x": "16:30", "y": 0.1749}, {"x": "16:35", "y": 0.1752}, {"x": "16:40", "y": 0.1756}, {"x": "16:45", "y": 0.176}, {"x": "16:50", "y": 0.1765}, {"x": "16:55", "y": 0.1771}, {"x": "17:00", "y": 0.1719}], "max_val": 0.2992, "max_time": "15:05", "eje_x": ["13:05", "13:10", "13:15", "13:20", "13:25", "13:30", "13:35", "13:40", "13:45", "13:50", "13:55", "14:00", "14:05", "14:10", "14:15", "14:20", "14:25", "14:30", "14:35", "14:40", "14:45", "14:50", "14:55", "15:00", "15:05", "15:10", "15:15", "15:20", "15:25", "15:30", "15:35", "15:40", "15:45", "15:50", "15:55", "16:00", "16:05", "16:10", "16:15", "16:20", "16:25", "16:30", "16:35", "16:40", "16:45", "16:50", "16:55", "17:00"], "inicio_pron": "15:05"}, {"nombre": "Tucush", "color": "#22c55e", "obs": [{"x": "13:05", "y": 0.7233}, {"x": "13:10", "y": 0.7217}, {"x": "13:15", "y": 0.7239}, {"x": "13:20", "y": 0.7488}, {"x": "13:25", "y": 0.7977}, {"x": "13:30", "y": 0.8271}, {"x": "13:35", "y": 0.8493}, {"x": "13:40", "y": 0.8495}, {"x": "13:45", "y": 0.847}, {"x": "13:50", "y": 0.8427}, {"x": "13:55", "y": 0.8419}, {"x": "14:00", "y": 0.8476}, {"x": "14:05", "y": 0.8503}, {"x": "14:10", "y": 0.8632}, {"x": "14:15", "y": 0.8725}, {"x": "14:20", "y": 0.8784}, {"x": "14:25", "y": 0.8927}, {"x": "14:30", "y": 0.8968}, {"x": "14:35", "y": 0.8971}, {"x": "14:40", "y": 0.8948}, {"x": "14:45", "y": 0.8945}, {"x": "14:50", "y": 0.8935}], "pron": [{"x": "15:05", "y": 2.322}, {"x": "15:10", "y": 2.9028}, {"x": "15:15", "y": 3.3617}, {"x": "15:20", "y": 3.7281}, {"x": "15:25", "y": 4.0451}, {"x": "15:30", "y": 4.3358}, {"x": "15:35", "y": 4.6096}, {"x": "15:40", "y": 4.8677}, {"x": "15:45", "y": 5.108}, {"x": "15:50", "y": 5.3275}, {"x": "15:55", "y": 5.5237}, {"x": "16:00", "y": 5.8613}, {"x": "16:05", "y": 6.0316}, {"x": "16:10", "y": 6.1753}, {"x": "16:15", "y": 6.3008}, {"x": "16:20", "y": 6.4136}, {"x": "16:25", "y": 6.5179}, {"x": "16:30", "y": 6.6163}, {"x": "16:35", "y": 6.7094}, {"x": "16:40", "y": 6.7969}, {"x": "16:45", "y": 6.8778}, {"x": "16:50", "y": 6.9508}, {"x": "16:55", "y": 7.0144}, {"x": "17:00", "y": 7.1972}], "max_val": 7.1972, "max_time": "17:00", "eje_x": ["13:05", "13:10", "13:15", "13:20", "13:25", "13:30", "13:35", "13:40", "13:45", "13:50", "13:55", "14:00", "14:05", "14:10", "14:15", "14:20", "14:25", "14:30", "14:35", "14:40", "14:45", "14:50", "14:55", "15:00", "15:05", "15:10", "15:15", "15:20", "15:25", "15:30", "15:35", "15:40", "15:45", "15:50", "15:55", "16:00", "16:05", "16:10", "16:15", "16:20", "16:25", "16:30", "16:35", "16:40", "16:45", "16:50", "16:55", "17:00"], "inicio_pron": "15:05"}];
+const HORA_CORTE = "15:08";
 const EJE_X_FIJO = CHART_DATA[0].eje_x;
 
 const LAYOUT_BASE = {
